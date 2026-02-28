@@ -2,8 +2,9 @@ function dump(o)
    if type(o) == 'table' then
       local s = '{ '
       for k,v in pairs(o) do
-         if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dump(v) .. ','
+         local key = k
+         if type(k) ~= 'number' then key = '""'..k..'""' end
+         s = s .. '['..key..'] = ' .. dump(v) .. ','
       end
       return s .. '} '
    else
@@ -20,6 +21,36 @@ end
 ---@param args string arguments we got from the user
 ---@return ConsoleArgParseResult
 function parse_args(params, args)
+
+   ---@class ParsedParam
+   ---@field name string the name of the param
+   ---@field type string the type of the param, possible values "i", "r", "s"
+
+   ---@type ParsedParam[]
+   pparams = {}
+
+   for c in params:gmatch"." do
+      table.insert(pparams, {
+         name = "unnamed",
+         type = c
+      })
+   end
+
+   for _,param in ipairs(pparams) do
+      print("param " .. param.name .. " with type " .. param.type)
+
+   end
+
+   return {
+      error = "not implemented",
+      args = nil
+   }
 end
 
-res = parse_args("", "some random args")
+args = parse_args("ssi", "some random args")
+if args.error then
+   print("error: " .. args.error)
+   os.exit(1)
+end
+args = args.args
+print("got args: " .. dump(args))
