@@ -31,23 +31,62 @@ function parse_args(params, args)
 
    for c in params:gmatch"." do
       table.insert(pparams, {
-         name = "unnamed",
+         name = nil,
          type = c
       })
    end
 
-   for _,param in ipairs(pparams) do
-      print("param " .. param.name .. " with type " .. param.type)
+   local result = {
+      error = nil,
+      args = {}
+   }
 
+   -- TODO: add multi word arg support with quotes
+   local words = {}
+   for word in string.gmatch(args, "%S+") do
+      words[#words+1] = word
+   end
+   for i,param in ipairs(pparams) do
+      print("param with type " .. param.type)
+
+      if words[i] == nil then
+         return {
+            error = "missing arg. usage: " .. params,
+            args = nil
+         }
+      end
+
+      ---@type string|integer
+      local key = param.name
+      if key == nil then
+         key = #result.args+1
+      end
+
+      if param.type == "s" then
+         result.args[key] = words[i]
+      elseif param.type == "i" then
+         local num = tonumber(words[i])
+         if num == nil then
+            return {
+               error = "argument '" .. words[i] .. "' is not a valid integer",
+               args = nil
+            }
+         end
+         result.args[key] = num
+      else
+         return {
+            error = "unknown parameter type " .. param.type,
+            args = nil
+         }
+      end
+
+      print(" arg: " .. words[i])
    end
 
-   return {
-      error = "not implemented",
-      args = nil
-   }
+   return result
 end
 
-args = parse_args("ssi", "some random args")
+args = parse_args("ssi", "some random 2")
 if args.error then
    print("error: " .. args.error)
    os.exit(1)
