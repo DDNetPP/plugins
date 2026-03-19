@@ -1,4 +1,3 @@
 {
-  "diagnostics.disable": ["lowercase-global"],
-  "diagnostics.globals": ["Game"]
+  "type.checkTableShape": true,
 }
